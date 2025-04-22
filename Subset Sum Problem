@@ -1,0 +1,45 @@
+# Python program to determine if there's a subset with given sum
+# and print all such subsets using memoization
+
+def findSubsetUtil(nums, total, idx, cache, path, all_subsets):
+    if total == 0:
+        all_subsets.append(path.copy())
+        return True
+    if idx <= 0 or total < 0:
+        return False
+    if cache[idx][total] != -1:
+        return cache[idx][total]
+
+    # Include current number
+    include = False
+    if nums[idx - 1] <= total:
+        path.append(nums[idx - 1])
+        include = findSubsetUtil(nums, total - nums[idx - 1], idx - 1, cache, path, all_subsets)
+        path.pop()  # backtrack
+
+    # Exclude current number
+    exclude = findSubsetUtil(nums, total, idx - 1, cache, path, all_subsets)
+
+    cache[idx][total] = include or exclude
+    return cache[idx][total]
+
+
+def hasSubsetWithTarget(nums, target):
+    n = len(nums)
+    memo_table = [[-1 for _ in range(target + 1)] for _ in range(n + 1)]
+    result_subsets = []
+    exists = findSubsetUtil(nums, target, n, memo_table, [], result_subsets)
+    return exists, result_subsets
+
+
+if __name__ == "__main__":
+    numbers = [2, 6, 4, 10, 8]
+    target_sum = 14
+
+    found, subsets = hasSubsetWithTarget(numbers, target_sum)
+    if found:
+        print("True - Subset(s) with sum", target_sum, "are:")
+        for s in subsets:
+            print(list(reversed(s)))
+    else:
+        print("False - No subset found with sum", target_sum)
